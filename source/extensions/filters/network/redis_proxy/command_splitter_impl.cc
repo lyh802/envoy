@@ -615,6 +615,13 @@ SplitRequestPtr InstanceImpl::makeRequest(Common::Redis::RespValuePtr&& request,
     return nullptr;
   }
 
+  if (command_name == Common::Redis::SupportedCommands::hello()) {
+    //stats_.unsupported_command_.inc();
+    callbacks.onResponse(Common::Redis::Utility::makeError(
+        fmt::format("ERR unknown command '{}'", request->asArray()[0].asString())));
+    return nullptr;
+  }
+
   if (!callbacks.connectionAllowed()) {
     callbacks.onResponse(Common::Redis::Utility::makeError(Response::get().AuthRequiredError));
     return nullptr;
